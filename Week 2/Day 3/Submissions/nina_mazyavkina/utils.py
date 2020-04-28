@@ -1,9 +1,24 @@
 import pandas as pd
+import csv
+import os
 
-def results_printer(model_name, time, score):
+def file_is_empty(path):
+    return os.stat(path).st_size==0
+
+def save_to_file(path, dict1):
+    header = list(dict1.keys())
+    with open(path, "a") as f:
+        writer = csv.DictWriter(f, fieldnames=header)
+        if file_is_empty(path):
+            writer.writeheader()
+        writer.writerow(dict1)
+
+def results_printer(model_name, time, score, csv_path = None):
 	print("Computing Grid Search for {0}".format(model_name))
 	print("Fitting time: {0}".format(time))
 	print("R2 score: {0}".format(score))
+	if csv_path:
+		save_to_file(csv_path, {'model_name':model_name, 'time': time, 'score':score})
 
 def preprocess(filenames, labels_to_drop):
     dfs = []

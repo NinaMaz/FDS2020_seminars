@@ -27,7 +27,7 @@ def main(args):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
     time, score = sk_experiment(X_train, X_test, y_train, y_test)
-    results_printer('RandomForestRegressor', time, score)
+    results_printer('RandomForestRegressor', time, score, args.csv)
 
     #random_array()
     #weather()
@@ -39,6 +39,7 @@ def arg_parser():
     parser.add_argument("-u", "--url", help="the url to download the data from")
     parser.add_argument("-d", "--data_path", help="the path to store your data")
     parser.add_argument("-r", "--rows", type = int,  help="number of rows to use")
+    parser.add_argument("-c", "--csv", help="file in which to store logs")
 
     return parser
 
