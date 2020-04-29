@@ -4,7 +4,7 @@ import timeit
 import os
 from data_processing import DataLoader, NycFlightsData
 from sklearn.model_selection import train_test_split
-from utils import results_printer, preprocess, setup_local_cluster
+from utils import results_printer, setup_local_cluster
 from experiments import Experiment
 from glob import glob
 from sklearn.ensemble import RandomForestRegressor
@@ -31,17 +31,16 @@ def main(args):
     client = setup_local_cluster()
     client.shutdown()
 
-    filenames = sorted(glob(os.path.join(args.data_path,'nycflights', '1990.csv')))
+    filenames = sorted(glob(os.path.join(args.data_path,'nycflights', '*.csv')))
     labels_to_drop = ['Year','DepTime', 'CRSDepTime','ArrTime', 'AirTime','CRSArrTime','CRSElapsedTime', 'TailNum', 'TaxiIn','TaxiOut']
 
     nycdata = NycFlightsData(filenames,labels_to_drop)
 
-    #RFRegressor
+    RFRegressor
 
     param_grid = {
-    'max_depth': list(range(2,10,2)),
+    'max_depth': list(range(2,8,2)),
     'max_features': ['auto', 'sqrt', 'log2'],
-    'n_estimators': [100, 300],
     
     }
     exp = Experiment(nycdata)
@@ -49,7 +48,7 @@ def main(args):
     best_est, time = exp.run_gs(model, param_grid, cluster = True)
     results_printer('RandomForestRegressor GS', time, None, args.csv)
 
-    time, score = exp.fit_model(model)
+    time, score = exp.fit_model(best_est)
     results_printer('RandomForestRegressor', time, score, args.csv)
 
     #DaskXGboost
@@ -57,17 +56,15 @@ def main(args):
 
 
     param_grid = {
-    'max_depth': list(range(2,10,2)),
-    'learning_rate': [0.001, 0.01, 0.1],
-    'n_estimators': [100, 300],    
+    'max_depth': list(range(2,8,2)),
+    'min_child_weight': [4,5,6],
     }
 
     exp = Experiment(nycdata, use_dask = True, n_partitions = 4)
     model = XGBRegressor(max_depth = 2, random_state=0)
     best_est, time = exp.run_gs(model, param_grid, cluster = False)
     results_printer('DaskXGBRegressor GS', time, None, args.csv)
-
-    time, score = exp.fit_model(model)
+    time, score = exp.fit_model(best_est)
     results_printer('DaskXGBRegressor', time, score, args.csv)
 
 
