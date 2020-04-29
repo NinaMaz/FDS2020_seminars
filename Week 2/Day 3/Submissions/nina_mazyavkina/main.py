@@ -39,9 +39,9 @@ def main(args):
     #RFRegressor
 
     param_grid = {
-    #'max_depth': list(range(2,10,2)),
+    'max_depth': list(range(2,10,2)),
     'max_features': ['auto', 'sqrt', 'log2'],
-    #'n_estimators': [100, 300],
+    'n_estimators': [100, 300],
     
     }
     exp = Experiment(nycdata)
@@ -58,8 +58,8 @@ def main(args):
 
     param_grid = {
     'max_depth': list(range(2,10,2)),
-    #'learning_rate': [1e-3, 1e-2, 1e-1],
-    #'n_estimators': [100, 300],    
+    'learning_rate': [0.001, 0.01, 0.1],
+    'n_estimators': [100, 300],    
     }
 
     exp = Experiment(nycdata, use_dask = True, n_partitions = 4)
