@@ -36,7 +36,7 @@ def main(args):
 
     nycdata = NycFlightsData(filenames,labels_to_drop)
 
-    RFRegressor
+    #RFRegressor
 
     param_grid = {
     'max_depth': list(range(2,8,2)),
