@@ -2,12 +2,12 @@ from __future__ import print_function
 import argparse
 import timeit
 import os
-from data_loader import DataLoader
+from data_processing import DataLoader, NycFlightsData
 from sklearn.model_selection import train_test_split
 from utils import results_printer, preprocess
-from experiments import sk_experiment
+from experiments import Experiment
 from glob import glob
-from experiments import NycFlightsData
+from sklearn.ensemble import RandomForestRegressor
 
 
 def main(args):
@@ -18,21 +18,29 @@ def main(args):
     dl.data_pipeline()
     print('Finished!')
 
-    #TO DO: this should go into the Experiment class
     filenames = sorted(glob(os.path.join(args.data_path,'nycflights', '1990.csv')))
     labels_to_drop = ['Year','DepTime', 'CRSDepTime','ArrTime', 'AirTime','CRSArrTime','CRSElapsedTime', 'TailNum', 'TaxiIn','TaxiOut']
-    # df = preprocess(filenames, labels_to_drop)
-
-    # X = df.drop('DepDelay', 1)
-    # y = df['DepDelay']
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
     nycdata = NycFlightsData(filenames,labels_to_drop)
 
-    X_train, X_test, y_train, y_test = nycdata.tt_split(nycdata.preprocess())
+    #X_train, X_test, y_train, y_test = nycdata.tt_split(nycdata.preprocess())
 
-    time, score = sk_experiment(X_train, X_test, y_train, y_test)
-    results_printer('RandomForestRegressor', time, score, args.csv)
+    #Grid
+
+    param_grid = {
+    #'max_depth': list(range(2,10,2)),
+    'max_features': ['auto', 'sqrt', 'log2'],
+    #'n_estimators': [100, 300],
+    
+    }
+
+    exp = Experiment(nycdata)
+    model = RandomForestRegressor(max_depth = 2, random_state=0)
+    params, time = exp.run_gs(model, param_grid, cluster = True)
+    results_printer('RandomForestRegressor GS', time, None, args.csv)
+
+    #time, score = sk_experiment(X_train, X_test, y_train, y_test)
+    #results_printer('RandomForestRegressor', time, score, args.csv)
 
     #random_array()
     #weather()

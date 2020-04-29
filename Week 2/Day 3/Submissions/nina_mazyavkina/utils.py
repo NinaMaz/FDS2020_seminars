@@ -43,3 +43,4 @@ def preprocess(filenames, labels_to_drop):
 def setup_local_cluster(n_workers = 4):
     cluster = LocalCluster(n_workers)
     client = Client(cluster)
+    return client
