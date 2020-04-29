@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 
 
 class DataLoader:
+    """Handles loading the data from url into data_dir"""
     def __init__(self, data_dir, url, num_rows):
         self.data_dir = data_dir
         self.url = url
@@ -55,14 +56,20 @@ class DataLoader:
         self.create_json()
 
 class NycFlightsData():
+    """Class providing the methods for working with the raw data
+    ---
+    labels_to_drop (list) - the features to drop from the resulting dataframe
+    """
     def __init__(self, filenames, labels_to_drop):
         self.filenames = filenames
         self.labels_to_drop = labels_to_drop
+
     def tt_split(self, df, y_label = 'DepDelay', test_size = 0.33):
-            X = df.drop(y_label, 1)
-            y = df[y_label]
-            split = train_test_split(X, y, test_size=test_size, random_state=42)
-            return split
+        X = df.drop(y_label, 1)
+        y = df[y_label]
+        split = train_test_split(X, y, test_size=test_size, random_state=42)
+        return split
+
     def preprocess(self):
         dfs = []
         for fn in self.filenames:
@@ -79,6 +86,7 @@ class NycFlightsData():
             dfs.append(df)
             del df
         return pd.concat(dfs, sort = False, ignore_index = True)
+        
     def to_dask_array(self, df, n_partitions = 4):
         df = dd.from_pandas(df, npartitions=4).to_dask_array(lengths=True)
         return df

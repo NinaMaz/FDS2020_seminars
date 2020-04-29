@@ -12,6 +12,14 @@ from dask_ml.xgboost import XGBRegressor
 
 
 def main(args):
+    """The Experimental pipeline:
+        1) line 32: create the data handling object of the class NycFlightsData
+        2) lines 42, 62: create the experiment handling object of the class Experiment
+        3) lines 45, 63: call .run_gs method, which runs the GridSearchCV
+        4) lines 49, 67: fit the models with the best found parameters using .fit_model method
+        The experiments' outputs are printed into the terminal and, optionally, to the .csv file, specified at lines 52, 67 
+        in the results_printer method. 
+    """
     print("Setting up data directory")
     print("-------------------------")
 
@@ -56,8 +64,8 @@ def main(args):
 
     exp = Experiment(nycdata, use_dask = True, n_partitions = 4)
     model = XGBRegressor(max_depth = 2, random_state=0)
-    #best_est, time = exp.run_gs(model, param_grid, cluster = True)
-    #results_printer('RandomForestRegressor GS', time, None, args.csv)
+    best_est, time = exp.run_gs(model, param_grid, cluster = False)
+    results_printer('DaskXGBRegressor GS', time, None, args.csv)
 
     time, score = exp.fit_model(model)
     results_printer('DaskXGBRegressor', time, score, args.csv)
