@@ -4,10 +4,11 @@ import timeit
 import os
 from data_processing import DataLoader, NycFlightsData
 from sklearn.model_selection import train_test_split
-from utils import results_printer, preprocess
+from utils import results_printer, preprocess, setup_local_cluster
 from experiments import Experiment
 from glob import glob
 from sklearn.ensemble import RandomForestRegressor
+from dask_ml.xgboost import XGBRegressor
 
 
 def main(args):
@@ -18,12 +19,16 @@ def main(args):
     dl.data_pipeline()
     print('Finished!')
 
+
+    client = setup_local_cluster()
+    client.shutdown()
+
     filenames = sorted(glob(os.path.join(args.data_path,'nycflights', '1990.csv')))
     labels_to_drop = ['Year','DepTime', 'CRSDepTime','ArrTime', 'AirTime','CRSArrTime','CRSElapsedTime', 'TailNum', 'TaxiIn','TaxiOut']
 
     nycdata = NycFlightsData(filenames,labels_to_drop)
 
-    #Grid
+    #RFRegressor
 
     param_grid = {
     #'max_depth': list(range(2,10,2)),
@@ -31,7 +36,6 @@ def main(args):
     #'n_estimators': [100, 300],
     
     }
-
     exp = Experiment(nycdata)
     model = RandomForestRegressor(max_depth = 2, random_state=0)
     best_est, time = exp.run_gs(model, param_grid, cluster = True)
@@ -39,6 +43,25 @@ def main(args):
 
     time, score = exp.fit_model(model)
     results_printer('RandomForestRegressor', time, score, args.csv)
+
+    #DaskXGboost
+
+
+
+    param_grid = {
+    'max_depth': list(range(2,10,2)),
+    #'learning_rate': [1e-3, 1e-2, 1e-1],
+    #'n_estimators': [100, 300],    
+    }
+
+    exp = Experiment(nycdata, use_dask = True, n_partitions = 4)
+    model = XGBRegressor(max_depth = 2, random_state=0)
+    #best_est, time = exp.run_gs(model, param_grid, cluster = True)
+    #results_printer('RandomForestRegressor GS', time, None, args.csv)
+
+    time, score = exp.fit_model(model)
+    results_printer('DaskXGBRegressor', time, score, args.csv)
+
 
     #random_array()
     #weather()

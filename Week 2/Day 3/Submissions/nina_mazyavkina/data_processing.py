@@ -5,8 +5,10 @@ import pandas as pd
 import tarfile
 import urllib.request
 import zipfile
+import dask.dataframe as dd
 from glob import glob
 from sklearn.model_selection import train_test_split
+
 
 
 class DataLoader:
@@ -77,3 +79,9 @@ class NycFlightsData():
             dfs.append(df)
             del df
         return pd.concat(dfs, sort = False, ignore_index = True)
+    def to_dask_array(self, df, n_partitions = 4):
+        df = dd.from_pandas(df, npartitions=4).to_dask_array(lengths=True)
+        return df
+    def from_dask_array(self, df):
+        df = df.compute()
+        return df
