@@ -23,8 +23,6 @@ def main(args):
 
     nycdata = NycFlightsData(filenames,labels_to_drop)
 
-    #X_train, X_test, y_train, y_test = nycdata.tt_split(nycdata.preprocess())
-
     #Grid
 
     param_grid = {
@@ -36,11 +34,11 @@ def main(args):
 
     exp = Experiment(nycdata)
     model = RandomForestRegressor(max_depth = 2, random_state=0)
-    params, time = exp.run_gs(model, param_grid, cluster = True)
+    best_est, time = exp.run_gs(model, param_grid, cluster = True)
     results_printer('RandomForestRegressor GS', time, None, args.csv)
 
-    #time, score = sk_experiment(X_train, X_test, y_train, y_test)
-    #results_printer('RandomForestRegressor', time, score, args.csv)
+    time, score = exp.fit_model(model)
+    results_printer('RandomForestRegressor', time, score, args.csv)
 
     #random_array()
     #weather()

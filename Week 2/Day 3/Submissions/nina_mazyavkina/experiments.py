@@ -38,10 +38,10 @@ class Experiment():
             grid_search.fit(self.X_train, self.y_train)
             e_time = timeit.default_timer() - starttime       
 
-        return grid_search.best_params_, e_time
+        return grid_search.best_estimator_, e_time
 
 
-    def fit_model(self, model, params):
+    def fit_model(self, model):
         starttime = timeit.default_timer()
         model.fit(self.X_train, self.y_train)
         e_time = timeit.default_timer() - starttime
